@@ -1,12 +1,13 @@
+
+CreateConVar('talkicon_computablecolor', 1, FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_SERVER_CAN_EXECUTE, 'Compute color from location brightness.')
+CreateConVar('talkicon_showtextchat', 1, FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_SERVER_CAN_EXECUTE, 'Show icon on using text chat.')
+
 if (SERVER) then
 
 	RunConsoleCommand('mp_show_voice_icons', '0')
 
-	-- resource.AddFile('materials/talkicon/voice.png')
-	-- resource.AddFile('materials/talkicon/text.png')
-
-	CreateConVar('talkicon_computablecolor', 1, {FCVAR_REPLICATED, FCVAR_SERVER_CAN_EXECUTE}, 'Compute color from location brightness.')
-	CreateConVar('talkicon_showtextchat', 1, {FCVAR_REPLICATED, FCVAR_SERVER_CAN_EXECUTE}, 'Show icon on using text chat.')
+	resource.AddFile('materials/talkicon/voice.png')
+	resource.AddFile('materials/talkicon/text.png')
 
 	util.AddNetworkString('TalkIconChat')
 
