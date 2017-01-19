@@ -25,7 +25,9 @@ elseif (CLIENT) then
 	local text_mat = Material('talkicon/text.png')
 
 	hook.Add('PostPlayerDraw', 'TalkIcon', function(ply)
-		if (ply == LocalPlayer() and GetViewEntity() == LocalPlayer()) or not ply:Alive() then return end
+		if ply == LocalPlayer() and GetViewEntity() == LocalPlayer()
+			and (GetConVar('thirdperson') and GetConVar('thirdperson'):GetInt() != 0) then return end
+		if not ply:Alive() then return end
 		if not ply:IsSpeaking() and not (showtextchat:GetBool() and ply:GetNW2Bool('ti_istyping')) then return end
 
 		local pos = ply:GetPos() + Vector(0, 0, ply:GetModelRadius() + 15)
