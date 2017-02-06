@@ -1,6 +1,7 @@
 
 CreateConVar('talkicon_computablecolor', 1, FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_SERVER_CAN_EXECUTE, 'Compute color from location brightness.')
 CreateConVar('talkicon_showtextchat', 1, FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_SERVER_CAN_EXECUTE, 'Show icon on using text chat.')
+CreateConVar('talkicon_ignoreteamchat', 1, FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_SERVER_CAN_EXECUTE, 'Disable over-head icon on using team chat.')
 
 if (SERVER) then
 
@@ -20,6 +21,7 @@ elseif (CLIENT) then
 
 	local computecolor = GetConVar('talkicon_computablecolor')
 	local showtextchat = GetConVar('talkicon_showtextchat')
+	local noteamchat = GetConVar('talkicon_ignoreteamchat')
 
 	local voice_mat = Material('talkicon/voice.png')
 	local text_mat = Material('talkicon/text.png')
@@ -50,7 +52,8 @@ elseif (CLIENT) then
 		render.DrawSprite(pos, 12, 12, Color(color_var, color_var, color_var, 255))
 	end)
 
-	hook.Add('StartChat', 'TalkIcon', function()
+	hook.Add('StartChat', 'TalkIcon', function(isteam)
+		if isteam and noteamchat:GetBool() then return end
 		net.Start('TalkIconChat')
 			net.WriteBool(true)
 		net.SendToServer()
