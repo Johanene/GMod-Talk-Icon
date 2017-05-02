@@ -65,4 +65,9 @@ elseif (CLIENT) then
 		net.SendToServer()
 	end)
 
+	hook.Add("InitPostEntity", "RemoveChatBubble", function()
+		hook.Remove("StartChat", "StartChatIndicator")
+		hook.Remove("FinishChat", "EndChatIndicator")
+	end)
+
 end
