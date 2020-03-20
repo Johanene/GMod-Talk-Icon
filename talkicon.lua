@@ -1,10 +1,9 @@
+local flags = FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_SERVER_CAN_EXECUTE
+local computecolor = CreateConVar('talkicon_computablecolor', 1, flags, 'Compute color from location brightness.')
+local showtextchat = CreateConVar('talkicon_showtextchat', 1, flags, 'Show icon on using text chat.')
+local noteamchat = CreateConVar('talkicon_ignoreteamchat', 1, flags, 'Disable over-head icon on using team chat.')
 
-CreateConVar('talkicon_computablecolor', 1, FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_SERVER_CAN_EXECUTE, 'Compute color from location brightness.')
-CreateConVar('talkicon_showtextchat', 1, FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_SERVER_CAN_EXECUTE, 'Show icon on using text chat.')
-CreateConVar('talkicon_ignoreteamchat', 1, FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_SERVER_CAN_EXECUTE, 'Disable over-head icon on using team chat.')
-
-if (SERVER) then
-
+if SERVER then
 	RunConsoleCommand('mp_show_voice_icons', '0')
 
 	resource.AddFile('materials/talkicon/voice.png')
@@ -16,20 +15,14 @@ if (SERVER) then
 		local bool = net.ReadBool()
 		ply:SetNW2Bool('ti_istyping', (bool ~= nil) and bool or false)
 	end)
-
-elseif (CLIENT) then
-
-	local computecolor = GetConVar('talkicon_computablecolor')
-	local showtextchat = GetConVar('talkicon_showtextchat')
-	local noteamchat = GetConVar('talkicon_ignoreteamchat')
-
+else
 	local voice_mat = Material('talkicon/voice.png')
 	local text_mat = Material('talkicon/text.png')
 
 	hook.Add('PostPlayerDraw', 'TalkIcon', function(ply)
-		if ply == LocalPlayer() and GetViewEntity() == LocalPlayer()
-			and (GetConVar('thirdperson') and GetConVar('thirdperson'):GetInt() != 0) then return end
+		if ply == LocalPlayer() and GetViewEntity() == LocalPlayer() and not ply:ShouldDrawLocalPlayer() then return end
 		if not ply:Alive() then return end
+
 		if not ply:IsSpeaking() and not (showtextchat:GetBool() and ply:GetNW2Bool('ti_istyping')) then return end
 
 		local pos = ply:GetPos() + Vector(0, 0, ply:GetModelRadius() + 15)
@@ -54,6 +47,7 @@ elseif (CLIENT) then
 
 	hook.Add('StartChat', 'TalkIcon', function(isteam)
 		if isteam and noteamchat:GetBool() then return end
+
 		net.Start('TalkIconChat')
 			net.WriteBool(true)
 		net.SendToServer()
@@ -68,6 +62,9 @@ elseif (CLIENT) then
 	hook.Add("InitPostEntity", "RemoveChatBubble", function()
 		hook.Remove("StartChat", "StartChatIndicator")
 		hook.Remove("FinishChat", "EndChatIndicator")
-	end)
 
+		hook.Remove("PostPlayerDraw", "DarkRP_ChatIndicator")
+		hook.Remove("CreateClientsideRagdoll", "DarkRP_ChatIndicator")
+		hook.Remove("player_disconnect", "DarkRP_ChatIndicator")
+	end)
 end
